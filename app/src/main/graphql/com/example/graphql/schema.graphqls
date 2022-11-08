@@ -1,0 +1,21 @@
+type Query {
+  findAll: [pokemonResponse]
+
+  findPokemonById(id: ID!): pokemonResponse
+}
+
+type pokemonResponse {
+  id: ID
+
+  name: String
+
+  front_default: String
+
+  back_default: String
+
+  types: [String]
+}
+
+schema {
+  query: Query
+}
