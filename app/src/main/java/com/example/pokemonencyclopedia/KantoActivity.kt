@@ -22,14 +22,14 @@ class KantoActivity : AppCompatActivity() {
 
         val strArray = resources.getStringArray(R.array.name)
         val apolloClient = ApolloClient.Builder()
-            .serverUrl("http://10.120.74.59:8081/graphql")
+            .serverUrl("https://graphql-pokeapi.graphcdn.app/#")
             .build()
 
         lifecycleScope.launch(Dispatchers.Main) {
             val res = apolloClient.query(PokemonListQuery()).execute()
 
-            val data = res.data?.findAll
-            val list = mutableListOf<PokemonListQuery.FindAll>()
+            val data = res.data?.pokemons?.results
+            val list = mutableListOf<PokemonListQuery.Result>()
             val nameList = mutableListOf<String>()
 
             for (i in 0 until 151) {
@@ -37,17 +37,17 @@ class KantoActivity : AppCompatActivity() {
                 nameList.add(strArray[i])
             }
 
-            val adapter = PokemonAdapter(list as List<PokemonListQuery.FindAll>, this@KantoActivity, nameList)
+            val adapter = PokemonAdapter(list, this@KantoActivity, nameList)
             binding.kantoRecyclerView.adapter = adapter
             binding.kantoRecyclerView.layoutManager = GridLayoutManager(this@KantoActivity, 3)
 
             adapter.itemClick = object :PokemonAdapter.ItemClick {
-                override fun onClick(view: View, data: PokemonListQuery.FindAll, position: Int) {
+                override fun onClick(view: View, result: PokemonListQuery.Result, position: Int) {
                     startActivity(Intent(this@KantoActivity, PokemonInfoActivity::class.java)
-                        .putExtra("dataId", data.id)
+                        .putExtra("dataId", result.id)
                         .putExtra("dataName", nameList[position])
-                        .putExtra("dataImg", data.front_default)
-                        .putStringArrayListExtra("dataTypes", data.types as ArrayList<String>)
+                        .putExtra("dataNameEng", result.name)
+                        .putExtra("dataImg", result.artwork)
                     )
                 }
             }

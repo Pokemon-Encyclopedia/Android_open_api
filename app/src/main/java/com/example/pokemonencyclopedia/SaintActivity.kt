@@ -1,9 +1,9 @@
 package com.example.pokemonencyclopedia
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.apollographql.apollo3.ApolloClient
@@ -22,14 +22,14 @@ class SaintActivity : AppCompatActivity() {
 
         val strArray = resources.getStringArray(R.array.name)
         val apolloClient = ApolloClient.Builder()
-            .serverUrl("http://10.120.74.59:8081/graphql")
+            .serverUrl("https://graphql-pokeapi.graphcdn.app/#")
             .build()
 
         lifecycleScope.launch(Dispatchers.Main) {
             val res = apolloClient.query(PokemonListQuery()).execute()
 
-            val data = res.data?.findAll
-            val list = mutableListOf<PokemonListQuery.FindAll>()
+            val data = res.data?.pokemons?.results
+            val list = mutableListOf<PokemonListQuery.Result>()
             val nameList = mutableListOf<String>()
 
             for (i in 151 until 251) {
@@ -42,12 +42,12 @@ class SaintActivity : AppCompatActivity() {
             binding.saintRecyclerView.layoutManager = GridLayoutManager(this@SaintActivity, 3)
 
             adapter.itemClick = object :PokemonAdapter.ItemClick {
-                override fun onClick(view: View, data: PokemonListQuery.FindAll, position: Int) {
+                override fun onClick(view: View, result: PokemonListQuery.Result, position: Int) {
                     startActivity(Intent(this@SaintActivity, PokemonInfoActivity::class.java)
-                        .putExtra("dataId", data.id)
+                        .putExtra("dataId", result.id)
                         .putExtra("dataName", nameList[position])
-                        .putExtra("dataImg", data.front_default)
-                        .putStringArrayListExtra("dataTypes", data.types as ArrayList<String>)
+                        .putExtra("dataNameEng", result.name)
+                        .putExtra("dataImg", result.artwork)
                     )
                 }
             }

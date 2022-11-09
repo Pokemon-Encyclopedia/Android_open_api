@@ -10,19 +10,19 @@ import com.bumptech.glide.Glide
 import com.example.graphql.PokemonListQuery
 import com.example.pokemonencyclopedia.databinding.PokemonItemBinding
 
-class PokemonAdapter(private val list: List<PokemonListQuery.FindAll>, private val context: Context, private val name: MutableList<String>): RecyclerView.Adapter<PokemonAdapter.ViewHolder>() {
+class PokemonAdapter(private val list: List<PokemonListQuery.Result>, private val context: Context, private val name: MutableList<String>): RecyclerView.Adapter<PokemonAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = PokemonItemBinding.inflate(LayoutInflater.from(parent.context))
         return ViewHolder(view)
     }
 
     interface ItemClick {
-        fun onClick(view: View, data: PokemonListQuery.FindAll, position: Int)
+        fun onClick(view: View, result: PokemonListQuery.Result, position: Int)
     }
     var itemClick: ItemClick? = null
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(list[position], name[position])
+        holder.bind(list[position], name[position], position)
     }
 
     override fun getItemCount(): Int {
@@ -30,16 +30,16 @@ class PokemonAdapter(private val list: List<PokemonListQuery.FindAll>, private v
     }
 
     inner class ViewHolder(private val binding: PokemonItemBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bind(findAll: PokemonListQuery.FindAll, name: String) {
+        fun bind(result: PokemonListQuery.Result, name: String, position: Int) {
             Glide
                 .with(context)
-                .load(findAll.front_default)
+                .load(result.artwork)
                 .into(binding.image)
 
-            val id = findAll.id
-            if (id?.toInt()!! < 10)
+            val id = result.id
+            if (id!! < 10)
                 binding.name.text = "No.00$id $name"
-            else if (id.toInt() < 100)
+            else if (id < 100)
                 binding.name.text = "No.0$id $name"
             else {
                 Log.d("ITEM", "bind: $name")
@@ -49,7 +49,7 @@ class PokemonAdapter(private val list: List<PokemonListQuery.FindAll>, private v
             val pos = adapterPosition
             if (pos != RecyclerView.NO_POSITION) {
                 binding.image.setOnClickListener {
-                    itemClick?.onClick(itemView, findAll, pos)
+                    itemClick?.onClick(itemView, result, pos)
                 }
             }
         }
