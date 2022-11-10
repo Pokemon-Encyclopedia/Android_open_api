@@ -1,4 +1,4 @@
-package com.example.pokemonencyclopedia
+package com.example.pokemonencyclopedia.adapter
 
 import android.content.Context
 import android.util.Log
@@ -10,7 +10,8 @@ import com.bumptech.glide.Glide
 import com.example.graphql.PokemonListQuery
 import com.example.pokemonencyclopedia.databinding.PokemonItemBinding
 
-class PokemonAdapter(private val list: List<PokemonListQuery.Result>, private val context: Context, private val name: MutableList<String>): RecyclerView.Adapter<PokemonAdapter.ViewHolder>() {
+class PokemonAdapter(private val list: List<PokemonListQuery.Result>, private val context: Context, private val name: MutableList<String>
+): RecyclerView.Adapter<PokemonAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = PokemonItemBinding.inflate(LayoutInflater.from(parent.context))
         return ViewHolder(view)
@@ -41,15 +42,12 @@ class PokemonAdapter(private val list: List<PokemonListQuery.Result>, private va
                 binding.name.text = "No.00$id $name"
             else if (id < 100)
                 binding.name.text = "No.0$id $name"
-            else {
-                Log.d("ITEM", "bind: $name")
-                binding.name.text = "No.$id $name"
-            }
+            else binding.name.text = "No.$id $name"
 
             val pos = adapterPosition
             if (pos != RecyclerView.NO_POSITION) {
                 binding.image.setOnClickListener {
-                    itemClick?.onClick(itemView, result, pos)
+                    itemClick?.onClick(itemView, result, position)
                 }
             }
         }
