@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">PokemonEncyclopedia</string>
 
-    <string-array name="name">
+    <string-array name="kanto_name">
         <item>이상해씨</item>
         <item>이상해풀</item>
         <item>이상해꽃</item>
@@ -153,6 +153,9 @@
         <item>망나뇽</item>
         <item>뮤츠</item>
         <item>뮤</item>
+    </string-array>
+
+    <string-array name="saint_name">
         <item>치코리타</item>
         <item>베이리프</item>
         <item>메가니움</item>
@@ -253,6 +256,9 @@
         <item>루기아</item>
         <item>칠색조</item>
         <item>세레비</item>
+    </string-array>
+
+    <string-array name="hoenn_name">
         <item>나무지기</item>
         <item>나무돌이</item>
         <item>나무킹</item>

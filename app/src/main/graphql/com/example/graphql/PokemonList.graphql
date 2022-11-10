@@ -1,5 +1,5 @@
-query PokemonList {
-    pokemons(limit: 1154, offset: 0) {
+query PokemonList($limit: Int, $offset: Int) {
+    pokemons(limit: $limit, offset: $offset) {
         count
         next
         previous
