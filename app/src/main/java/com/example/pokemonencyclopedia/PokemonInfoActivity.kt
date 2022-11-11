@@ -15,6 +15,7 @@ import com.example.graphql.PokemonListQuery
 import com.example.pokemonencyclopedia.databinding.ActivityPokemonInfoBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.DecimalFormat
 
 class PokemonInfoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPokemonInfoBinding
@@ -35,17 +36,17 @@ class PokemonInfoActivity : AppCompatActivity() {
             .build()
 
         lifecycleScope.launch(Dispatchers.Main) {
-            val resFront = apolloClient.query(PokemonListQuery(Optional.present(1), Optional.present(id))).execute()    // 9
+            val resFront = apolloClient.query(PokemonListQuery(Optional.present(1), Optional.present(id))).execute()
             val resBack = apolloClient.query(PokemonListQuery(Optional.present(1), Optional.present(id-2))).execute()
             val typeRes = apolloClient.query(FindPokemonByNameQuery(nameEng!!)).execute()
             Log.d("TAG", "onCreate type res: ${typeRes.data}")
 
             if (id -1 == 0) {
                 binding.pokemonInfoFront.visibility = View.INVISIBLE
-                setViewBack(resFront, img)  // 뒷번호
+                setViewBack(resFront, img)
             } else if (id +1 == 387) {
                 binding.pokemonInfoBack.visibility = View.INVISIBLE
-                setViewFront(resBack, img)  // 앞번호
+                setViewFront(resBack, img)
             } else {
                 setViewFront(resBack, img)
                 setViewBack(resFront, img)
@@ -78,6 +79,30 @@ class PokemonInfoActivity : AppCompatActivity() {
 
             // 타입 구하기
             getPokemonType(typeRes)
+
+            // 키, 몸무게 구하기
+            setPokemonBody(typeRes)
+        }
+    }
+
+    private fun setPokemonBody(typeRes: ApolloResponse<FindPokemonByNameQuery.Data>) {
+        val weight = typeRes.data?.pokemon?.weight.toString()
+        val height = typeRes.data?.pokemon?.height.toString()
+
+        if (weight.toInt() < 10) {
+            val weightRes = "0." + weight.substring(weight.length-1)
+            binding.pokemonWeight.text = "몸무게: $weightRes kg"
+        } else {
+            val weightRes = weight.substring(0, weight.length - 1) + "." + weight.substring(weight.length - 1)
+            binding.pokemonWeight.text = "몸무게: $weightRes kg"
+        }
+
+        if (height.toInt() < 10) {
+            val heightRes = "0." + height.substring(height.length-1)
+            binding.pokemonHeight.text = "키: $heightRes m"
+        } else {
+            val heightRes = height.substring(0, height.length-1) + "." + height.substring(height.length-1)
+            binding.pokemonHeight.text = "키: $heightRes m"
         }
     }
 
