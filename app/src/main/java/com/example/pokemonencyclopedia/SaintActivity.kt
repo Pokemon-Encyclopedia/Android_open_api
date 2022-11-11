@@ -43,7 +43,7 @@ class SaintActivity : AppCompatActivity() {
             val adapter = PokemonAdapter(list, this@SaintActivity, nameList)
             binding.saintRecyclerView.adapter = adapter
             binding.saintRecyclerView.layoutManager = GridLayoutManager(this@SaintActivity, 3)
-            binding.saintRecyclerView.addItemDecoration(SpacesItemDecoration(20))
+            binding.saintRecyclerView.addItemDecoration(SpacesItemDecoration(10))
 
             adapter.itemClick = object : PokemonAdapter.ItemClick {
                 override fun onClick(view: View, result: PokemonListQuery.Result, position: Int) {

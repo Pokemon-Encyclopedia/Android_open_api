@@ -7,7 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
+import com.example.graphql.FindPokemonByNameQuery
 import com.example.graphql.PokemonListQuery
 import com.example.pokemonencyclopedia.adapter.PokemonAdapter
 import com.example.pokemonencyclopedia.adapter.SpacesItemDecoration

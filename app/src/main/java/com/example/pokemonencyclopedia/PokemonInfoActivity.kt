@@ -1,14 +1,17 @@
 package com.example.pokemonencyclopedia
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.api.Optional
 import com.bumptech.glide.Glide
 import com.example.graphql.FindPokemonByNameQuery
+import com.example.graphql.PokemonListQuery
 import com.example.pokemonencyclopedia.databinding.ActivityPokemonInfoBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,7 +25,7 @@ class PokemonInfoActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val strArray = resources.getStringArray(R.array.name)
-        val id = intent.getStringExtra("dataId")
+        val id = intent.getIntExtra("dataId", 0)
         val name = intent.getStringExtra("dataName")
         val img = intent.getStringExtra("dataImg")
         val nameEng = intent.getStringExtra("dataNameEng")
@@ -32,76 +35,103 @@ class PokemonInfoActivity : AppCompatActivity() {
             .build()
 
         lifecycleScope.launch(Dispatchers.Main) {
-            val resFront = apolloClient.query(FindPokemonByNameQuery("${id?.toInt()?.plus(1)}")).execute()
-            val resBack = apolloClient.query(FindPokemonByNameQuery("${id?.toInt()?.minus(1)}")).execute()
+            val resFront = apolloClient.query(PokemonListQuery(Optional.present(1), Optional.present(id))).execute()    // 9
+            val resBack = apolloClient.query(PokemonListQuery(Optional.present(1), Optional.present(id-2))).execute()
+            val typeRes = apolloClient.query(FindPokemonByNameQuery(nameEng!!)).execute()
+            Log.d("TAG", "onCreate type res: ${typeRes.data}")
 
-            binding.goFrontId.setOnClickListener {
-                finish()
-                startActivity(intent
-                    .putExtra("dataId", resBack.data?.pokemon?.id)
-                    .putExtra("dataName", strArray[resBack.data?.pokemon?.id!!.toInt()-1])
-                    .putExtra("dataImg", img)
-                    .putExtra("dataTypes", resBack.data?.pokemon?.types as ArrayList<String>)
-                )
-            }
-            binding.goBackId.setOnClickListener {
-                finish()
-                startActivity(intent
-                    .putExtra("dataId", resFront.data?.pokemon?.id)
-                    .putExtra("dataName", strArray[resFront.data?.pokemon?.id!!.toInt()-1])
-                    .putExtra("dataImg", img)
-                    .putExtra("dataTypes", resFront.data?.pokemon?.types as ArrayList<String>)
-                )
-            }
-
-            if (id!!.toInt()-1 == 0) {
+            if (id -1 == 0) {
                 binding.pokemonInfoFront.visibility = View.INVISIBLE
-                setViewBack(resFront, img)
-            } else if (id.toInt()+1 == 387) {
+                setViewBack(resFront, img)  // 뒷번호
+            } else if (id +1 == 387) {
                 binding.pokemonInfoBack.visibility = View.INVISIBLE
-                setViewFront(resBack, img)
+                setViewFront(resBack, img)  // 앞번호
             } else {
                 setViewFront(resBack, img)
                 setViewBack(resFront, img)
             }
-        }
 
-        Glide.with(this)
+
+            binding.goFrontId.setOnClickListener {
+                finish()
+                startActivity(intent
+                    .putExtra("dataId", resBack.data?.pokemons?.results!![0]?.id)
+                    .putExtra("dataName", strArray[resBack.data?.pokemons?.results!![0]?.id!!-1])
+                    .putExtra("dataNameEng", resBack.data?.pokemons?.results!![0]?.name)
+                    .putExtra("dataImg", resBack.data?.pokemons?.results!![0]?.artwork)
+                )
+            }
+
+            // 뒤로가기 리스너
+            binding.goBackId.setOnClickListener {
+                finish()
+                startActivity(intent
+                    .putExtra("dataId", resFront.data?.pokemons?.results!![0]?.id)
+                    .putExtra("dataName", strArray[resFront.data?.pokemons?.results!![0]?.id!!-1])
+                    .putExtra("dataNameEng", resFront.data?.pokemons?.results!![0]?.name)
+                    .putExtra("dataImg", resFront.data?.pokemons?.results!![0]?.artwork)
+                )
+            }
+
+            // 포켓몬 정보 표시
+            setPokeInfo(img, name, id)
+
+            // 타입 구하기
+            getPokemonType(typeRes)
+        }
+    }
+
+    private fun getPokemonType(typeRes: ApolloResponse<FindPokemonByNameQuery.Data>) {
+        if (typeRes.data?.pokemon?.types?.size == 1)
+            setType(pokemonType(typeRes.data?.pokemon, 1)[0])
+        else {
+            binding.type2CardView.visibility = View.VISIBLE
+
+            setType(pokemonType(typeRes.data?.pokemon, 2)[0])
+            setType2(pokemonType(typeRes.data?.pokemon, 2)[1])
+        }
+    }
+
+    private fun setPokeInfo(img: String?, name: String?, id: Int) {
+        Glide.with(this@PokemonInfoActivity)
             .load(img)
             .into(binding.pokemonImg)
         binding.pokemonName.text = "No." + setId(id) + " " + name
-//        if (type?.size == 1) {
-//            setType(type[0])
-//        } else {
-//            binding.type2CardView.visibility = View.VISIBLE
-//
-//            setType(type!![0])
-//            setType2(type[1])
-//        }
     }
 
-    private fun setId(id: String?): String {
-        return if (id?.toInt()!! < 10) {
+    private fun pokemonType(pokemon: FindPokemonByNameQuery.Pokemon?, size: Int): MutableList<String> {
+        val typeList = mutableListOf<String>()
+        repeat(size) { i ->
+            val type = pokemon?.types!![i]?.type?.name
+            if (type != null) {
+                typeList.add(type)
+            }
+        }
+        return typeList
+    }
+
+    private fun setId(id: Int): String {
+        return if (id < 10) {
             "00$id"
-        } else if (id.toInt() < 100) {
+        } else if (id < 100) {
             "0$id"
         } else "$id"
     }
 
-    private fun setViewFront(resBack: ApolloResponse<FindPokemonByNameQuery.Data>, img: String?) {
+    private fun setViewFront(resBack: ApolloResponse<PokemonListQuery.Data>, img: String?) {
         Glide
             .with(this@PokemonInfoActivity)
-            .load(img)
+            .load(resBack.data?.pokemons?.results!![0]?.artwork)
             .into(binding.pokemonImgFront)
-        binding.pokemonIdFront.text = "No." + setId(resBack.data?.pokemon?.id.toString())
+        binding.pokemonIdFront.text = "No." + setId(resBack.data?.pokemons?.results!![0]?.id!!)
     }
 
-    private fun setViewBack(resFront: ApolloResponse<FindPokemonByNameQuery.Data>, img: String?) {
+    private fun setViewBack(resFront: ApolloResponse<PokemonListQuery.Data>, img: String?) {
         Glide
             .with(this@PokemonInfoActivity)
-            .load(img)
+            .load(resFront.data?.pokemons?.results!![0]?.artwork)
             .into(binding.pokemonImgBack)
-        binding.pokemonIdBack.text = "No." + setId(resFront.data?.pokemon?.id.toString())
+        binding.pokemonIdBack.text = "No." + setId(resFront.data?.pokemons?.results!![0]?.id!!)
     }
 
     private fun setType(s: String) {
