@@ -1,29 +1,31 @@
-package com.example.pokemonencyclopedia
+package com.example.pokemonencyclopedia.localFragment
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
-import com.example.graphql.FindPokemonByNameQuery
 import com.example.graphql.PokemonListQuery
+import com.example.pokemonencyclopedia.PokemonInfoActivity
+import com.example.pokemonencyclopedia.R
 import com.example.pokemonencyclopedia.adapter.PokemonAdapter
 import com.example.pokemonencyclopedia.adapter.SpacesItemDecoration
-import com.example.pokemonencyclopedia.databinding.ActivityKantoBinding
+import com.example.pokemonencyclopedia.databinding.FragmentKantoBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class KantoActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityKantoBinding
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        binding = ActivityKantoBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+class KantoFragment : Fragment() {
+    private lateinit var binding: FragmentKantoBinding
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        binding = FragmentKantoBinding.inflate(layoutInflater)
 
         val strArray = resources.getStringArray(R.array.kanto_name)
         val apolloClient = ApolloClient.Builder()
@@ -31,7 +33,9 @@ class KantoActivity : AppCompatActivity() {
             .build()
 
         lifecycleScope.launch(Dispatchers.Main) {
-            val res = apolloClient.query(PokemonListQuery(Optional.present(151), Optional.present(0))).execute()
+            val res =
+                apolloClient.query(PokemonListQuery(Optional.present(151), Optional.present(0)))
+                    .execute()
 
             val data = res.data?.pokemons?.results
             val list = mutableListOf<PokemonListQuery.Result>()
@@ -42,14 +46,14 @@ class KantoActivity : AppCompatActivity() {
                 nameList.add(strArray[i])
             }
 
-            val adapter = PokemonAdapter(list, this@KantoActivity, nameList)
+            val adapter = PokemonAdapter(list, requireContext(), nameList)
             binding.kantoRecyclerView.adapter = adapter
-            binding.kantoRecyclerView.layoutManager = GridLayoutManager(this@KantoActivity, 3)
+            binding.kantoRecyclerView.layoutManager = GridLayoutManager(context, 3)
             binding.kantoRecyclerView.addItemDecoration(SpacesItemDecoration(10))
 
             adapter.itemClick = object : PokemonAdapter.ItemClick {
                 override fun onClick(view: View, result: PokemonListQuery.Result, position: Int) {
-                    startActivity(Intent(this@KantoActivity, PokemonInfoActivity::class.java)
+                    startActivity(Intent(context, PokemonInfoActivity::class.java)
                         .putExtra("dataId", result.id)
                         .putExtra("dataName", nameList[position])
                         .putExtra("dataNameEng", result.name)
@@ -58,5 +62,6 @@ class KantoActivity : AppCompatActivity() {
                 }
             }
         }
+        return binding.root
     }
 }

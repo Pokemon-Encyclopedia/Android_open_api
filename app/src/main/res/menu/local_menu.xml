@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/kanto"
+        android:icon="@drawable/kanto"
+        android:enabled="true"
+        android:title="관동"/>
+
+    <item
+        android:id="@+id/saint"
+        android:icon="@drawable/saint"
+        android:enabled="true"
+        android:title="성도"/>
+
+    <item
+        android:id="@+id/hoenn"
+        android:icon="@drawable/hoenn"
+        android:enabled="true"
+        android:title="호연"/>
+
+    <item
+        android:id="@+id/shino"
+        android:icon="@drawable/shino"
+        android:enabled="true"
+        android:title="신오"/>
+
+    <item
+        android:id="@+id/hana"
+        android:icon="@drawable/hana"
+        android:enabled="true"
+        android:title="하나"/>
+
+    <item
+        android:id="@+id/carlos"
+        android:icon="@drawable/carlos"
+        android:enabled="true"
+        android:title="칼로스"/>
+
+    <item
+        android:id="@+id/alola"
+        android:icon="@drawable/alola"
+        android:enabled="true"
+        android:title="알로라"/>
+
+    <item
+        android:id="@+id/galar"
+        android:icon="@drawable/galar"
+        android:enabled="true"
+        android:title="가라르"/>
+
+    <item
+        android:id="@+id/hisui"
+        android:icon="@drawable/hisui"
+        android:enabled="true"
+        android:title="히스이"/>
+</menu>
