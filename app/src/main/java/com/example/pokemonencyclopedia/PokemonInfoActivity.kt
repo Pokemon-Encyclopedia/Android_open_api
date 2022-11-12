@@ -44,7 +44,7 @@ class PokemonInfoActivity : AppCompatActivity() {
             if (id -1 == 0) {
                 binding.pokemonInfoFront.visibility = View.INVISIBLE
                 setViewBack(resFront, img)
-            } else if (id +1 == 387) {
+            } else if (id +1 == 494) {
                 binding.pokemonInfoBack.visibility = View.INVISIBLE
                 setViewFront(resBack, img)
             } else {
