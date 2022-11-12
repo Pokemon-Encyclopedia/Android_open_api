@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">PokemonEncyclopedia</string>
-
     <string-array name="kanto_name">
         <item>이상해씨</item>
         <item>이상해풀</item>

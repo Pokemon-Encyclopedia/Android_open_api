@@ -37,7 +37,6 @@
                 android:id="@+id/pokemon_id_front"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
                 android:layout_marginStart="5dp"
                 android:layout_gravity="center"/>
         </LinearLayout>
@@ -57,7 +56,6 @@
                 android:id="@+id/pokemon_id_back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
                 android:layout_marginEnd="5dp"
                 android:layout_gravity="center"/>
 
@@ -150,6 +148,7 @@
             android:text="키: "
             android:textSize="20sp"
             android:textStyle="bold"
+            android:layout_gravity="center"
             android:textColor="@color/black"/>
 
         <TextView

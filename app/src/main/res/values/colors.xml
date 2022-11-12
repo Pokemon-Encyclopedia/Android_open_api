@@ -8,6 +8,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <color name="sub_color">#DBF8FF</color>
+    <color name="sub_color_dark">#9EECFF</color>
     <color name="grass">#A7DB8D</color>
     <color name="poison">#C183C1</color>
     <color name="normal">#C6C6A7</color>
