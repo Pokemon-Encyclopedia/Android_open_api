@@ -1,60 +1,69 @@
 package com.example.pokemonencyclopedia.localFragment
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
+import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.Optional
+import com.example.graphql.PokemonListQuery
+import com.example.pokemonencyclopedia.PokemonInfoActivity
 import com.example.pokemonencyclopedia.R
+import com.example.pokemonencyclopedia.adapter.PokemonAdapter
+import com.example.pokemonencyclopedia.adapter.SpacesItemDecoration
+import com.example.pokemonencyclopedia.databinding.FragmentAlolaBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [AlolaFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class AlolaFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var binding: FragmentAlolaBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_alola, container, false)
-    }
+    ): View {
+        binding = FragmentAlolaBinding.inflate(layoutInflater)
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment AlolaFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            AlolaFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+        val strArray = resources.getStringArray(R.array.alola_name)
+        val apolloClient = ApolloClient.Builder()
+            .serverUrl("https://graphql-pokeapi.graphcdn.app/#")
+            .build()
+
+        lifecycleScope.launch(Dispatchers.Main) {
+            val res = apolloClient.query(PokemonListQuery(Optional.present(88), Optional.present(721))).execute()
+
+            val data = res.data?.pokemons?.results
+            val list = mutableListOf<PokemonListQuery.Result>()
+            val nameList = mutableListOf<String>()
+
+            for (i in strArray.indices) {
+                list.add(data!![i]!!)
+                Log.d("TAG", "onCreateView i: $i")
+                nameList.add(strArray[i])
+            }
+
+            val adapter = PokemonAdapter(list, requireContext(), nameList)
+            binding.alolaRecyclerView.adapter = adapter
+            binding.alolaRecyclerView.layoutManager = GridLayoutManager(context, 3)
+            binding.alolaRecyclerView.addItemDecoration(SpacesItemDecoration(10))
+
+            adapter.itemClick = object : PokemonAdapter.ItemClick {
+                override fun onClick(view: View, result: PokemonListQuery.Result, position: Int) {
+                    startActivity(Intent(context, PokemonInfoActivity::class.java)
+                        .putExtra("dataId", result.id)
+                        .putExtra("dataName", nameList[position])
+                        .putExtra("dataNameEng", result.name)
+                        .putExtra("dataImg", result.artwork)
+                    )
                 }
             }
+        }
+
+        return binding.root
     }
 }
