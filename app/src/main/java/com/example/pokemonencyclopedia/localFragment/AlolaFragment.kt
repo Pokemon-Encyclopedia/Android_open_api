@@ -43,7 +43,6 @@ class AlolaFragment : Fragment() {
 
             for (i in strArray.indices) {
                 list.add(data!![i]!!)
-                Log.d("TAG", "onCreateView i: $i")
                 nameList.add(strArray[i])
             }
 
